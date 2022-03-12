@@ -1,0 +1,39 @@
+name: CI Tests and Build Version
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+#defaults:
+#  run:
+#    # Having a global working directory will not work when more projects are added
+#    working-directory: ./
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.4
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Unit Tests
+        run: ./run.sh -t
+        working-directory: ./
+      - name: Lint
+        run: ./run.sh -l
+        working-directory: ./
+      - name: Package
+        run: |
+          pip3 install wheel
+          ./run.sh -b
+        working-directory: ./
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheel
+          path: dist/shellwrap-*-py3-none-any.whl
