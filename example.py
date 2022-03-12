@@ -1,5 +1,7 @@
 from shellwrap import color
 from shellwrap import interactive
+from shellwrap import unix
+from shellwrap import file
 import argparse
 
 # ######################################
@@ -74,7 +76,15 @@ def main():
     if args.user:
         interactive.user_commands(handler=process_actions, environment=env, g=globals())
 
+
+    presult = unix.pipe(['echo', 'one', 'two', 'three'], ['wc', '-m'])
+    print(presult)
+
+    print(unix.ccurl('-H', 'Header: Value', 'https://github.com/jceaser/shellwrap.git'))
+
     color.cprint(color.tcode.red, "ending", env)
+
+    print(file.read_file('.editorconfig'))
 
 if __name__ == "__main__":
     main()
