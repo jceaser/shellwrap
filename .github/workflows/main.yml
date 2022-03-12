@@ -37,3 +37,10 @@ jobs:
         with:
           name: wheel
           path: dist/shellwrap-*-py3-none-any.whl
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest-master"
+          prerelease: true
+          title: "Master Build"
+          files: dist/shellwrap-*-py3-none-any.whl
