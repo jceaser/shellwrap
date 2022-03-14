@@ -17,7 +17,11 @@ This library hopes to bridge that gap
     cd shellwrap
     ./run.sh -b -i
     python3 example.py
-    
+
+## Installing
+
+    pip3 install https://github.com/jceaser/shellwrap/releases/download/latest-master/shellwrap-0.0.1-py3-none-any.whl
+
 ## Usage
 
 ### Printing in color
