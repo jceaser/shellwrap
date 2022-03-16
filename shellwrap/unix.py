@@ -44,6 +44,7 @@ def pipe(*cmd_lists):
         else:
             pipe_result = subprocess.run(cmd, input=pipe_result.stdout,
                 capture_output=True, check=True) # use check?
+            #print (f"return:{pipe_result.returncode}")
     return pipe_result.stdout.decode('utf-8')
 
 def curl(*flags):
