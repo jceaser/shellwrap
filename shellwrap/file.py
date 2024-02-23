@@ -8,23 +8,28 @@
 
 # template modified 2021-09-02
 
-""" template script for future scripts """
+""" Functions for managing files, cRUD """
 
 #mark - Imports
 
-#from enum import Enum   #Creating Enums
-#import argparse         #command line parsing
-#import code             #interactive shell
 import os               #file handling
-#import re               #filter in man()
-#import readline         #interactive shell
-#import subprocess       #calling unix commands
-#import sys              #exiting
 
 # ######################################
 #mark File Tools
 
-def read_file(path:str=None):
+def exists(path:str=None):
+    """
+    Tests if a file or directory exists
+    Parameters:
+        path (string): full path to file or directory to test for
+    Returns:
+        True if path exists, false otherwise
+    """
+    path=os.path.realpath(__file__[:-2]+"txt") if path is None else os.path.expanduser(path)
+    #return os.path.isfile(path)
+    return os.path.exists(path)
+
+def read(path:str=None):
     """
     Read and return the contents of a file
     Parameters:
@@ -40,7 +45,7 @@ def read_file(path:str=None):
             file.close()
     return text
 
-def write_file(text:str, path:str=None):
+def write(text:str, path:str=None):
     """
     Write (creating if need be) file and set it's content
     Parameters:
@@ -51,3 +56,13 @@ def write_file(text:str, path:str=None):
     with open(path, "w+") as cache:
         cache.write(text)
         cache.close()
+
+def delete(path:str=None):
+    """
+    Delete file and set it's content
+    Parameters:
+        path (string): path to file to write
+        text (string): content for file
+    """
+    path=os.path.realpath(__file__[:-2]+"txt") if path is None else os.path.expanduser(path)
+    os.remove(path)
