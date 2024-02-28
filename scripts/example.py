@@ -1,7 +1,8 @@
 from shellwrap import color
+from shellwrap import file
 from shellwrap import interactive
 from shellwrap import unix
-from shellwrap import file
+from shellwrap import net
 import argparse
 
 # ######################################
@@ -57,6 +58,37 @@ def process_actions(action=None, env:dict=None):
         some_task(action, env)
     return True
 
+@color.print_red
+@color.print_green
+def log_this(item):
+    return item
+
+@color.bold
+@color.green
+def color_this(foo):
+    return foo
+
+@color.bold
+@color.black_green
+@color.underline
+def blueit(text):
+    return text
+
+@color.green
+@color.underline
+def headline(text):
+    return text
+
+@unix.str_to_json
+@unix.wrap_call
+@unix.wrap_curl
+def curl_test(url, what, proj):
+    return [url + what + proj, "-H", "Client-Id: test"]
+
+@net.str_to_json
+def other_test(url):
+    return net.read(url)["text"]
+
 # ######################################
 #mark - Main
 
@@ -76,15 +108,33 @@ def main():
     if args.user:
         interactive.user_commands(handler=process_actions, environment=env, g=globals())
 
-
+    print(headline("Unix tests"))
     presult = unix.pipe(['echo', 'one', 'two', 'three'], ['wc', '-m'])
-    print(presult)
-
+    print(f"preselt={presult}")
     print(unix.ccurl('-H', 'Header: Value', 'https://github.com/jceaser/shellwrap.git'))
 
-    color.cprint(color.tcode.red, "ending", env)
+    print(headline("\nUnix Decorator tests"))
+    print(curl_test('http://thomascherry.name/',
+        '/cgi-bin/go.cgi',
+        '?user=thomas&name=main&group=public'))
 
-    print(file.read_file('.editorconfig'))
+    #color.cprint(color.tcode.red, "ending", env)
+
+    print(headline("\nFile tests"))
+    print(file.read('.editorconfig'))
+
+    print(headline("\nDecorator tests"))
+    print("Normal: %s" % log_this('hi, this is the decorator'))
+    print(color_this("some text"))
+    print(blueit("Make this blue and bold."))
+
+    print(headline("\nURL tests"))
+
+    url = 'http://thomascherry.name/cgi-bin/go.cgi?user=thomas&name=main&group=public'
+    print(net.read(url)["text"])
+
+    print(other_test(url))
+    #print(net.rread(url).text)
 
 if __name__ == "__main__":
     main()
