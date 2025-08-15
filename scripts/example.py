@@ -148,7 +148,14 @@ def main():
     print(' ; '.join(f"{i}={color.emoji[i]}" for i in color.emoji))
 
     print(headline("Date tests"))
-    print(datetools.now())
+    start: int = datetools.unix()
+    print("Now: ", datetools.now())
+    print("Unix: ", datetools.unix())
+    print("Today: ", datetools.today())
+    print("Internal: ", datetools.now_internal())
+    print("Durration: ", datetools.unix_difference(start))
+
+    print(color.colorize(":warn::blink::red: This is the end of the script :end:"))
 
 if __name__ == "__main__":
     main()

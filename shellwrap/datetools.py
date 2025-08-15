@@ -16,22 +16,22 @@ import time
 # ######################################
 #mark date functions
 
-def now_internal():
+def now_internal() -> datetime:
     """ In testing, this one function can be Mocked to stop time """
     return datetime.datetime.now()
 
-def now():
+def now() -> str:
     """ Return a string with the current date and time formated in ISO"""
     return now_internal().strftime("%Y-%m-%dT%H:%M:%S")
 
-def today():
+def today() -> str:
     """ Return a string with the current date formated in ISO"""
     return now_internal().strftime("%Y-%m-%d")
 
-def unix():
+def unix() -> int:
     """ unix time stamp """
     return int(time.time())
 
-def unix_difference(start):
+def unix_difference(start: int) -> int:
     """ different from a unix start time stamp and now """
     return int(time.time()) - start

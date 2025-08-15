@@ -54,12 +54,12 @@ class TerminalCode(dict):
 * RYG - Red, Yellow, Green
 * CMYK - Cyan, Magenta, Yellow, Black
 """
-tcode = TerminalCode({'none': '0',
+tcode = TerminalCode({'none': '0', 'end': '0',
     'bold': '1',
     'faint': '2',
     'italix': '3',    #not well supported
     'underline': '4',
-    'slow': '5',
+    'slow': '5', 'blink': '5',
     'fast': '6',      #not well supported
     'inverse': '7',
     'hide': '8',
