@@ -1,5 +1,6 @@
 from shellwrap import color
 from shellwrap import file
+from shellwrap import datetools
 from shellwrap import interactive
 from shellwrap import unix
 from shellwrap import net
@@ -27,9 +28,9 @@ def initialize_enviornment(args):
     if args.color_off:
         environment["color"] = False
     if args.verbose:
-        environment["verbose"]=VMode.WARN
+        environment["verbose"]=1
     if args.very_verbose:
-        environment["verbose"]=VMode.INFO
+        environment["verbose"]=3
     return environment
 
 # ######################################
@@ -101,7 +102,10 @@ def main():
     world['do_action'] = do_action
     world['process_actions'] = process_actions
 
-    color.cprint(color.tcode.green, "Starting script", env)
+    print("This will go away")
+    color.cmd_clear_screen()
+
+    color.cprint(color.tcode.green, "Starting script")
 
     if args.interactive:
         interactive.interactive(env, g=globals())
@@ -109,14 +113,14 @@ def main():
         interactive.user_commands(handler=process_actions, environment=env, g=globals())
 
     print(headline("Unix tests"))
-    presult = unix.pipe(['echo', 'one', 'two', 'three'], ['wc', '-m'])
-    print(f"preselt={presult}")
+    result = unix.pipe(['echo', 'one', 'two', 'three'], ['wc', '-m'])
+    print(f"pipe result={result}.")
     print(unix.ccurl('-H', 'Header: Value', 'https://github.com/jceaser/shellwrap.git'))
 
-    print(headline("\nUnix Decorator tests"))
-    print(curl_test('http://thomascherry.name/',
-        '/cgi-bin/go.cgi',
-        '?user=thomas&name=main&group=public'))
+    #print(headline("\nUnix Decorator tests"))
+    #print(curl_test('http://thomascherry.name/',
+    #    '/cgi-bin/go.cgi',
+    #    '?user=thomas&name=main&group=public'))
 
     #color.cprint(color.tcode.red, "ending", env)
 
@@ -127,14 +131,24 @@ def main():
     print("Normal: %s" % log_this('hi, this is the decorator'))
     print(color_this("some text"))
     print(blueit("Make this blue and bold."))
+    print(color.link("https://apple.com/", "apple.com"))
 
-    print(headline("\nURL tests"))
+    #print(headline("\nURL tests"))
+    #url = 'http://thomascherry.name/cgi-bin/go.cgi?user=thomas&name=main&group=public'
+    #print(net.read(url)["text"])
 
-    url = 'http://thomascherry.name/cgi-bin/go.cgi?user=thomas&name=main&group=public'
-    print(net.read(url)["text"])
-
-    print(other_test(url))
+    #print(other_test(url))
     #print(net.rread(url).text)
+
+    print(headline("Colorize tests"))
+    print(color.colorize(":rocket: This is my :red:red:end: text and this is my :green:green:end: text."))
+
+    color.cprint([color.tcode.green, color.tcode.underline], "my list text")
+
+    print(' ; '.join(f"{i}={color.emoji[i]}" for i in color.emoji))
+
+    print(headline("Date tests"))
+    print(datetools.now())
 
 if __name__ == "__main__":
     main()

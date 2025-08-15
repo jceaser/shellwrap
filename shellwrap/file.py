@@ -29,6 +29,18 @@ def exists(path:str=None):
     #return os.path.isfile(path)
     return os.path.exists(path)
 
+#Create
+def create(path: str = None):
+    """
+    Create an empty file (if it doesn't exist already)
+    Parameters:
+        path (string): path to file to create
+    """
+    path = os.path.realpath(__file__[:-2] + "txt") if path is None else os.path.expanduser(path)
+    with open(path, "w"):
+        pass
+
+#Read
 def read(path:str=None):
     """
     Read and return the contents of a file
@@ -44,7 +56,7 @@ def read(path:str=None):
             text = file.read().strip()
             file.close()
     return text
-
+# Update
 def write(text:str, path:str=None):
     """
     Write (creating if need be) file and set it's content
@@ -56,7 +68,7 @@ def write(text:str, path:str=None):
     with open(path, "w+") as cache:
         cache.write(text)
         cache.close()
-
+# Delete
 def delete(path:str=None):
     """
     Delete file and set it's content

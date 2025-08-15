@@ -13,18 +13,10 @@
 #mark - Imports
 
 from enum import Enum   #Creating Enums
+import re
 
 # ##############################################################################
 #mark - Utility functions - Leave these alone
-
-class VMode(Enum):
-    """ Verbose Mode Enums, higher values print less"""
-    FATAL = -8 # always print
-    ERROR = 0
-    NORMAL = 1
-    WARN = 2
-    INFO = 4
-    DEBUG = 8
 
 class TerminalCode(dict):
     """
@@ -39,21 +31,21 @@ class TerminalCode(dict):
         """
         super().__init__()
         for key, value in data.items():
-            self[key] = self[value[2:]] if value.startswith('->') else value
+            self[key] = value
 
     def __getattr__ (self, attr):
         """ Allow items to be access with dot notation. """
-        color_code = self.get(attr, '\033[0m')
-        if color_code.startswith('\033'):
-            return color_code
-        return f'\033[0;{color_code}m'
+        color_code = self.get(attr.replace('_', '-'), '\033[0m')
+        return color_code
+
+    def escape(self, code) -> str:
+        """ Take a TerminalCode and wrap it in terminal escape code. """
+        return f'\033[{code}m'
 
     def full(self, fg, bg):
         fgc = self.get(fg, "0")
         bgc = self.get(bg, "0")
         return f'\033[{fgc};{bgc}m'
-    def raw(self, code):
-        return self.get(code, '0')
 
 #https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
 
@@ -62,24 +54,34 @@ class TerminalCode(dict):
 * RYG - Red, Yellow, Green
 * CMYK - Cyan, Magenta, Yellow, Black
 """
-tcode = TerminalCode({'none': '\033[0m',
-    'bold': '\033[1m',
-    'faint': '\033[2m',
-    'italix': '\033[3m',    #not well supported
-    'underline': '\033[4m',
-    'slow': '\033[5m',
-    'fast': '\033[6m',      #not well supported
-    'inverse': '\033[7m',
-    'hide': '\033[8m',
+tcode = TerminalCode({'none': '0',
+    'bold': '1',
+    'faint': '2',
+    'italix': '3',    #not well supported
+    'underline': '4',
+    'slow': '5',
+    'fast': '6',      #not well supported
+    'inverse': '7',
+    'hide': '8',
 
-    'off_bold': '\033[21m',
-    'off_faint': '\033[22m',
-    'off_italix': '\033[23m',    #not well supported
-    'off_underline': '\033[24m',
-    'off_slow': '\033[25m',
-    'off_fast': '\033[26m',      #not well supported
-    'off_inverse': '\033[27m',
-    'off_hide': '\033[28m',
+    'nc': '\033[0m',
+    'on-bold': '\033[1m',
+    'on-faint': '\033[2m',
+    'on-italix': '\033[3m',    #not well supported
+    'on-underline': '\033[4m',
+    'on-slow': '\033[5m',
+    'on-fast': '\033[6m',      #not well supported
+    'on-inverse': '\033[7m',
+    'on-hide': '\033[8m',
+
+    'off-bold': '\033[21m',
+    'off-faint': '\033[22m',
+    'off-italix': '\033[23m',    #not well supported
+    'off-underline': '\033[24m',
+    'off-slow': '\033[25m',
+    'off-fast': '\033[26m',      #not well supported
+    'off-inverse': '\033[27m',
+    'off-hide': '\033[28m',
 
     'black': '30',
     'red':'31',
@@ -90,48 +92,58 @@ tcode = TerminalCode({'none': '\033[0m',
     'cyan': '36',
     'white': '37',
 
-    'backblack':'40',
-    'backred':'41',
-    'backgreen': '42',
-    'backyellow': '43',
-    'backblue': '44',
-    'backmagenta': '45',
-    'backcyan': '46',
-    'backwhite': '47',
+    'back-black':'40',
+    'back-red':'41',
+    'back-green': '42',
+    'back-yellow': '43',
+    'back-blue': '44',
+    'back-magenta': '45',
+    'back-cyan': '46',
+    'back-white': '47',
 
-    'bright_black' : '90',
-    'bright_red' : '91',
-    'bright_green' : '92',
-    'bright_yellow': '93',
-    'bright_blue' : '94',
-    'bright_magenta' : '95',
-    'bright_cyan' : '96',
-    'bright_white' : '97',
+    'bright-black' : '90',
+    'bright-red' : '91',
+    'bright-green' : '92',
+    'bright-yellow': '93',
+    'bright-blue' : '94',
+    'bright-magenta' : '95',
+    'bright-cyan' : '96',
+    'bright-white' : '97',
 
-    'back_bright_black': '100',
-    'back_bright_red': '101',
-    'back_bright_green': '102',
-    'back_bright_yellow': '103',
-    'back_bright_blue': '104',
-    'back_bright_magenta': '105',
-    'back_bright_cyan': '106',
-    'back_bright_white': '107',
+    'back-bright-black': '100',
+    'back-bright-red': '101',
+    'back-bright-green': '102',
+    'back-bright-yellow': '103',
+    'back-bright-blue': '104',
+    'back-bright-magenta': '105',
+    'back-bright-cyan': '106',
+    'back-bright-white': '107',
 
-    #'nc': '\033[0m', # No Color
-    # now define duplicates
-    VMode.FATAL: '->red',
-    VMode.ERROR: '->red',
-    VMode.NORMAL: '->white',
-    VMode.WARN: '->yellow',
-    VMode.INFO: '->blue',
-    VMode.DEBUG: '->underline'
+    'clear-screen': '\033[2J',
+    'clear-line': '\033[2K',
+    'clear-to-end': '\033[K',
+    'position-save': '\033[s',
+    'position-restore': '\033[u'
 })
 
-def is_verbose(environment, verbose):
-    """ True if the environment is in verbose mode; Can print in verbose mode """
-    return verbose.value <= environment.get("verbose", VMode.WARN).value
+#emoji: TerminalCode = TerminalCode({':rocket:': '🚀'})
+emoji: dict[str,str] = {'none': '',
+        'airship':'𐃌',
+        'bomb': '💣',
+        'chequered': '🏁',
+        'degree': '°',
+        'firecracker': '🧨',
+        'flag': '🏳️',
+        'pirate': '🏴‍☠️',
+        'platform': '𐁙',
+        'post': '🚩',
+        'rocket': '🚀',
+        'sub': '𐃍',
+        'unicorn': '🦄',
+        'warn': '⚠️'
+}
 
-def cprint(color:str, content:str, environment:dict=None, verbose:VMode=VMode.NORMAL):
+def cprint(color: str | list[str], content:str):
     """
     Color Print, print out text in the requested color, but respect the verbose
     and color modes of the environment variable.
@@ -148,18 +160,53 @@ def cprint(color:str, content:str, environment:dict=None, verbose:VMode=VMode.NO
 
     Return: None
     """
-    if environment is None:
-    	environment = {}
-    if is_verbose(environment, verbose):
-        if environment.get("color", True):
-            print ("{}{}{}".format(color, content, tcode.nc))
+
+    if isinstance(color, list):
+        colors = ";".join(color)
+        print(f"\033[{colors}m{content}\033[0m")
+    else:
+        print ("{}{}{}".format(tcode.escape(color), content, tcode.nc))
+
+def encoder(color: str, content: str):
+    """
+    Take a color code and text content, either with or without escape code, and return a printable
+    escape sequence.
+    """
+    if color.startswith('\033['):
+        return "{}{}{}".format(color, content, tcode.nc)
+    else:
+        return f"\033[{color}m{content}\033[0m"
+
+def link(link:str, text:str):
+    """ Take an html link and link text and return a printable escape sequence. """
+    return '\033]8;;{}\a{}\033]8;;\a'.format(link, text)
+
+def colorize(text: str):
+    """
+    Parse the input text and apply color formatting based on the tags.
+
+    Tags should be in the format :color: where color is the name of the color.
+    The :end tag is used to reset the color.
+
+    Example:
+    ":red:Hello :green:World:end" will color "Hello" in red and "World" in green.
+    """
+    # Find all color tags in the text
+    tags = re.findall(r':(\w+):', text)
+
+    # Replace each tag with its corresponding ANSI color code
+    for tag in tags:
+        if tag in tcode:
+            text = text.replace(f':{tag}:', f'\033[{tcode[tag]}m')
+        elif tag in emoji:
+            text = text.replace(f':{tag}:', emoji[tag])
         else:
-            print ("{}".format(content))
+            # If the tag is not recognized, leave it as is
+            pass
+    return text
 
-def encoder(color, content):
-    return "{}{}{}".format(color, content, tcode.nc)
-
-# decorators
+# ##############################################################################
+# decorators - experimental
 
 def black(foo):
     return lambda c : encoder(tcode.black, foo(c))
@@ -183,9 +230,6 @@ def bold(foo):
 def underline(foo):
     return lambda c : encoder(tcode.underline, foo(c))
 
-def link(link, text):
-    return '\033]8;;{}\a{}\033]8;;\a'.format(link, text)
-
 def print_red(function):
     def inner(*args):
          ret = function(*args)
@@ -207,48 +251,40 @@ def print_blue(function):
          return ret
     return inner
 
-def command(code):
+# ##############################################################################
+# terminal commands
+
+def command(code: str) -> None:
     print (code, end='')
 
-def vcprint(verbose:VMode, content:str, environment:dict=None):
-    """
-    Verbose Color Printing:
-    Decided what color to print out for the user, based on verbose level
-
-    Parameters:
-    * verbose - level for print context
-    * content - text to print out
-    * environment - application settings
-    """
-    cprint (tcode.get(verbose, tcode.white), content, environment, verbose)
-
 def cmd_clear_screen():
-    print('\033[2J', end='')
+    command(tcode.clear_screen)
 
 def cmd_clear_line():
-    print('\033[2K', end='')
+    command(tcode.clear_line)
 
 def cmd_clear_end_line():
-    print('\033[K', end='')
+    command(tcode.clear_to_end)
 
 def cmd_save_position():
-    print('\033[s', end='')
+    command(tcode.position_save)
 
 def cmd_restore_position():
-    print('\033[u', end='')
+    command(tcode.position_restore)
 
-def cmd_move(num, direction):
-    direction = direction.upper()
-    match direction:
+def cmd_move(num: int, direction: str) -> None:
+    direction_normalized: str = direction.upper()
+    action: str = ''
+    match direction_normalized:
         case "UP":
-            direction = "A"
+            action = "A"
         case "DOWN":
-            direction = "B"
+            action = "B"
         case "RIGHT":
-            direction = "C"
+            action = "C"
         case "LEFT":
-            direction = "D"
-    print('\033[{}{}'.format(num, direction), end='')
+            action = "D"
+    command(f'\033[{str(num)}{action}')
 
-def cmd_move_to(line, column):
-    print('\033[{};{}H'.format(line, column), end='')
+def cmd_move_to(line: int, column: int):
+    command(f'\033[{line};{column}H')

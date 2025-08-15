@@ -18,7 +18,7 @@ run_build()
 
 run_install()
 {
-	pip3 install dist/shellwrap-0.0.2-py3-none-any.whl
+	pip3 install dist/shellwrap-0.0.3-py3-none-any.whl
 }
 
 run_test()
@@ -37,6 +37,21 @@ run_lint()
     #    --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,tags,shellwrap.egg-info"
 }
 
+run_help()
+{
+  fmt="%4s %s\\n"
+  printf "$fmt" flag meaning
+  printf "$fmt" -h help
+  printf "$fmt" -c clean
+  printf "$fmt" -b build
+  printf "$fmt" -I init
+  printf "$fmt" -i install
+  printf "$fmt" -t test
+  printf "$fmt" -l lint
+  printf "$fmt" -u uninstall
+  printf "$fmt" -v "set version"
+}
+
 # Process the command line arguments
 while getopts "hcbIitlu" opt
 do
@@ -51,7 +66,7 @@ do
         
         u) pip3 uninstall shellwrap ;;
         v) set_version $OPTARG ;;
-        *) help ; exit ;;
+        *) run_help ; exit ;;
     esac
 done
 
