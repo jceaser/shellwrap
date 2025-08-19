@@ -6,28 +6,29 @@ Far to much of the world runs on bash shell scripts. A shamefull amount of code,
 
 This library hopes to bridge that gap
 
-## Setup
+## Setup for development
 
-    pip3 install virtualenv
-    virtualenv -p python3 shellwrap
-    cd shellwrap
-    source bin/activate
-    
     get clone https://github.com/jceaser/shellwrap.git
     cd shellwrap
-    ./run.sh -b -i
+
+    pip3 install virtualenv
+    virtualenv -p python3 .venv
+    source .venv/bin/activate
+
+    ./run.sh -I -b -i   #Init build install
     python3 example.py
 
-## Installing
+## Installing directly
 
-    pip3 install https://github.com/jceaser/shellwrap/releases/download/latest-master/shellwrap-0.0.1-py3-none-any.whl
+    pip3 install https://github.com/jceaser/shellwrap/releases/download/latest-master/shellwrap-0.0.3-py3-none-any.whl
 
 ## Usage
 
 ### Printing in color
 
-	from shellwrap import color
-	color.cprint(color.tcode.green, "Starting script", env)
+    from shellwrap import color
+    color.cprint(color.tcode.green, "Starting script", env)
+    print(color.colorize(":rocket::blink:This is my :red:RED:end: text and this is my :green:GREEN:end: text."))
 
 ### Calling Unix Commands
 
@@ -54,4 +55,4 @@ The function `interactivity()` will start a python shell with the scope of the `
 The function `user_commands()` is a little different. This ones will prompt the user for commands which are then handled by `process_actions(action=None, env:dict=None)`. This allows the calling function more control over what actions are offered. History is also remembered.
 
 ----
-Copyright &copy; 2022 Thomas Cherry. This software is declared to be under the BSD license.
+Copyright &copy; 2022-2025 Thomas Cherry. This software is declared to be under the BSD license.
