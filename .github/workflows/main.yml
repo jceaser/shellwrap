@@ -33,7 +33,7 @@ jobs:
           pip3 install wheel
           ./run.sh -b
         working-directory: ./
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: wheel
           path: dist/shellwrap-*-py3-none-any.whl
