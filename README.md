@@ -20,15 +20,18 @@ This library hopes to bridge that gap
 
 ## Installing directly
 
-    pip3 install https://github.com/jceaser/shellwrap/releases/download/latest-master/shellwrap-0.0.3-py3-none-any.whl
+    pip3 install https://github.com/jceaser/shellwrap/releases/download/v0.0.3-release/shellwrap-0.0.3-py3-none-any.whl
 
 ## Usage
 
-### Printing in color
+### Printing in color with formating
 
     from shellwrap import color
     color.cprint(color.tcode.green, "Starting script", env)
     print(color.colorize(":rocket::blink:This is my :red:RED:end: text and this is my :green:GREEN:end: text."))
+    print(color.link("https://example.com/", "example.com"))
+
+Read more about [OCS 8](https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda).
 
 ### Calling Unix Commands
 
