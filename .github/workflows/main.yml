@@ -31,7 +31,7 @@ jobs:
       - name: Package
         run: |
           pip3 install wheel
-          ./run.sh -b
+          ./run.sh -I -b
         working-directory: ./
       - uses: actions/upload-artifact@v4
         with:
