@@ -8,18 +8,12 @@
 
 # template modified 2021-09-02
 
-""" template script for future scripts """
+""" Functions to make calling Unix apps easy """
 
 #mark - Imports
 
-#from enum import Enum   #Creating Enums
-#import argparse         #command line parsing
-#import code             #interactive shell
-#import os               #file handling
-#import re               #filter in man()
-#import readline         #interactive shell
+import json
 import subprocess       #calling unix commands
-#import sys              #exiting
 
 # ######################################
 #mark calling unix commands
@@ -46,6 +40,16 @@ def pipe(*cmd_lists):
                 capture_output=True, check=True) # use check?
             #print (f"return:{pipe_result.returncode}")
     return pipe_result.stdout.decode('utf-8')
+
+def wrap_curl(foo):
+    """Wrap a list of parameters"""
+    return lambda *flags : curl(*foo(*flags))
+
+def wrap_call(foo):
+    return lambda *flags : call(*foo(*flags))
+
+def str_to_json(foo):
+    return lambda *flags : json.loads(foo(*flags))
 
 def curl(*flags):
     """ Build a curl command list which can be passed to pipe() or call() """

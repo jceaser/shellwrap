@@ -8,3 +8,4 @@ lib
 
 #application
 .python-*-history
+__pycache__

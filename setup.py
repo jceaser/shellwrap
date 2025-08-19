@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.1'
+VERSION = '0.0.3'
 DESCRIPTION = 'Scripting Tools'
 LONG_DESCRIPTION = 'A set of tools to make it easy to write unix scripts'
 

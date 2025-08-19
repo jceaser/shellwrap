@@ -6,19 +6,32 @@
 
 # template modified 2021-09-02
 
-""" template script for future scripts """
+""" Functions for getting Date and Time values """
 
 #mark - Imports
 
 import datetime
+import time
 
 # ######################################
 #mark date functions
 
-def now():
-    """ Return a string with the current date and time formated in ISO"""
-    return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+def now_internal() -> datetime:
+    """ In testing, this one function can be Mocked to stop time """
+    return datetime.datetime.now()
 
-def today():
+def now() -> str:
+    """ Return a string with the current date and time formated in ISO"""
+    return now_internal().strftime("%Y-%m-%dT%H:%M:%S")
+
+def today() -> str:
     """ Return a string with the current date formated in ISO"""
-    return datetime.datetime.now().strftime("%Y-%m-%d")
+    return now_internal().strftime("%Y-%m-%d")
+
+def unix() -> int:
+    """ unix time stamp """
+    return int(time.time())
+
+def unix_difference(start: int) -> int:
+    """ different from a unix start time stamp and now """
+    return int(time.time()) - start

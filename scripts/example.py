@@ -1,7 +1,9 @@
 from shellwrap import color
+from shellwrap import file
+from shellwrap import datetools
 from shellwrap import interactive
 from shellwrap import unix
-from shellwrap import file
+from shellwrap import net
 import argparse
 
 # ######################################
@@ -26,9 +28,9 @@ def initialize_enviornment(args):
     if args.color_off:
         environment["color"] = False
     if args.verbose:
-        environment["verbose"]=VMode.WARN
+        environment["verbose"]=1
     if args.very_verbose:
-        environment["verbose"]=VMode.INFO
+        environment["verbose"]=3
     return environment
 
 # ######################################
@@ -57,6 +59,37 @@ def process_actions(action=None, env:dict=None):
         some_task(action, env)
     return True
 
+@color.print_red
+@color.print_green
+def log_this(item):
+    return item
+
+@color.bold
+@color.green
+def color_this(foo):
+    return foo
+
+@color.bold
+@color.black_green
+@color.underline
+def blueit(text):
+    return text
+
+@color.green
+@color.underline
+def headline(text):
+    return text
+
+@unix.str_to_json
+@unix.wrap_call
+@unix.wrap_curl
+def curl_test(url, what, proj):
+    return [url + what + proj, "-H", "Client-Id: test"]
+
+@net.str_to_json
+def other_test(url):
+    return net.read(url)["text"]
+
 # ######################################
 #mark - Main
 
@@ -69,22 +102,60 @@ def main():
     world['do_action'] = do_action
     world['process_actions'] = process_actions
 
-    color.cprint(color.tcode.green, "Starting script", env)
+    print("This will go away")
+    color.cmd_clear_screen()
+
+    color.cprint(color.tcode.green, "Starting script")
 
     if args.interactive:
         interactive.interactive(env, g=globals())
     if args.user:
         interactive.user_commands(handler=process_actions, environment=env, g=globals())
 
-
-    presult = unix.pipe(['echo', 'one', 'two', 'three'], ['wc', '-m'])
-    print(presult)
-
+    print(headline("Unix tests"))
+    result = unix.pipe(['echo', 'one', 'two', 'three'], ['wc', '-m'])
+    print(f"pipe result={result}.")
     print(unix.ccurl('-H', 'Header: Value', 'https://github.com/jceaser/shellwrap.git'))
 
-    color.cprint(color.tcode.red, "ending", env)
+    #print(headline("\nUnix Decorator tests"))
+    #print(curl_test('http://thomascherry.name/',
+    #    '/cgi-bin/go.cgi',
+    #    '?user=thomas&name=main&group=public'))
 
-    print(file.read_file('.editorconfig'))
+    #color.cprint(color.tcode.red, "ending", env)
+
+    print(headline("\nFile tests"))
+    print(file.read('.editorconfig'))
+
+    print(headline("\nDecorator tests"))
+    print("Normal: %s" % log_this('hi, this is the decorator'))
+    print(color_this("some text"))
+    print(blueit("Make this blue and bold."))
+    print(color.link("https://apple.com/", "apple.com"))
+
+    #print(headline("\nURL tests"))
+    #url = 'http://thomascherry.name/cgi-bin/go.cgi?user=thomas&name=main&group=public'
+    #print(net.read(url)["text"])
+
+    #print(other_test(url))
+    #print(net.rread(url).text)
+
+    print(headline("Colorize tests"))
+    print(color.colorize(":rocket: This is my :red:red:end: text and this is my :green:green:end: text."))
+
+    color.cprint([color.tcode.green, color.tcode.underline], "my list text")
+
+    print(' ; '.join(f"{i}={color.emoji[i]}" for i in color.emoji))
+
+    print(headline("Date tests"))
+    start: int = datetools.unix()
+    print("Now: ", datetools.now())
+    print("Unix: ", datetools.unix())
+    print("Today: ", datetools.today())
+    print("Internal: ", datetools.now_internal())
+    print("Durration: ", datetools.unix_difference(start))
+
+    print(color.colorize(":warn::blink::red: This is the end of the script :end:"))
 
 if __name__ == "__main__":
     main()
